@@ -8,9 +8,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import mobappdev.example.nback_cimpl.ui.screens.HomeScreen
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import mobappdev.example.nback_cimpl.ui.screens.GameScreen
+import mobappdev.example.nback_cimpl.ui.screens.HomeScreenPreview
 import mobappdev.example.nback_cimpl.ui.theme.NBack_CImplTheme
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
+import mobappdev.example.nback_cimpl.ui.screens.HomeScreen as HomeScreen
 
 /**
  * This is the MainActivity of the application
@@ -40,9 +45,19 @@ class MainActivity : ComponentActivity() {
                     val gameViewModel: GameVM = viewModel(
                         factory = GameVM.Factory
                     )
+                    val navCon = rememberNavController()
+                    NavHost(navController = navCon, startDestination = "home") {
+                        composable("home") {
+                            HomeScreen(vm = gameViewModel, nav = { navCon.navigate("game") })
+                        }
+                        composable("game") {
+                            GameScreen(vm = gameViewModel, nav = { navCon.navigate("home") })
+                        }
 
-                    // Instantiate the homescreen
-                    HomeScreen(vm = gameViewModel)
+
+                        // Instantiate the homescreen
+                        //HomeScreen(vm = gameViewModel)
+                    }
                 }
             }
         }

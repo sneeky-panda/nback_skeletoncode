@@ -49,8 +49,9 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 @Composable
 fun HomeScreen(
-    vm: GameViewModel
+    vm: GameViewModel,nav:()->Unit
 ) {
+
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
     val gameState by vm.gameState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -87,8 +88,8 @@ fun HomeScreen(
                             textAlign = TextAlign.Center
                         )
                     }
-                    Button(onClick = vm::startGame) {
-                        Text(text = "Generate eventValues")
+                    Button(onClick = {nav.invoke()}) {
+                        Text(text = "Start Game")
                     }
                 }
             }
@@ -143,11 +144,12 @@ fun HomeScreen(
     }
 }
 
+
 @Preview
 @Composable
 fun HomeScreenPreview() {
     // Since I am injecting a VM into my homescreen that depends on Application context, the preview doesn't work.
     Surface(){
-        HomeScreen(FakeVM())
+        HomeScreen(FakeVM(), nav = {"home"})
     }
 }
