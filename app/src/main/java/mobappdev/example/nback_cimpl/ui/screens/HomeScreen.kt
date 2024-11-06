@@ -83,11 +83,11 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     if (gameState.eventValue != -1) {
-                        Text(
+                        /*Text(
                             modifier = Modifier.fillMaxWidth(),
                             text = "Current eventValue is: ${gameState.eventValue}",
                             textAlign = TextAlign.Center
-                        )
+                        )*/
                     }
 
                 }
