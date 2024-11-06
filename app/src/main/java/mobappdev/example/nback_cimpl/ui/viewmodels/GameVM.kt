@@ -44,6 +44,7 @@ interface GameViewModel {
     fun startGame()
 
     fun checkMatch()
+    fun processUserAction(position: Int): Boolean
 }
 
 class GameVM(
@@ -52,6 +53,14 @@ class GameVM(
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
         get() = _gameState.asStateFlow()
+
+    override fun processUserAction(position: Int): Boolean {
+        val isCorrect = position == _gameState.value.eventValue
+        if (isCorrect) {
+            _score.value += 1
+        }
+        return isCorrect
+    }
 
     private val _score = MutableStateFlow(0)
     override val score: StateFlow<Int>
@@ -132,6 +141,7 @@ class GameVM(
             }
         }
     }
+
 }
 
 // Class with the different game types
@@ -156,7 +166,6 @@ class FakeVM: GameViewModel{
         get() = MutableStateFlow(42).asStateFlow()
     override val nBack: Int
         get() = 2
-
     override fun setGameType(gameType: GameType) {
     }
 
@@ -164,5 +173,9 @@ class FakeVM: GameViewModel{
     }
 
     override fun checkMatch() {
+    }
+
+    override fun processUserAction(position: Int): Boolean {
+        TODO("Not yet implemented")
     }
 }

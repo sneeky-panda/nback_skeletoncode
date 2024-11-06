@@ -54,6 +54,7 @@ fun HomeScreen(
 
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
     val gameState by vm.gameState.collectAsState()
+   // val nrOfTurns by vm.nrOfTurns.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
