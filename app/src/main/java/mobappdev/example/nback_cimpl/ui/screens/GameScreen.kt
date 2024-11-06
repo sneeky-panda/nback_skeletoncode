@@ -107,7 +107,9 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
 
             // Knapp för att navigera tillbaka till HomeScreen
             Button(
-                onClick = nav,
+                onClick = {nav()
+                    vm.updateHighScoreIfNeeded()
+                          },
                 modifier = Modifier.padding(top = 32.dp)
             ) {
                 Text(text = "Back to Home")

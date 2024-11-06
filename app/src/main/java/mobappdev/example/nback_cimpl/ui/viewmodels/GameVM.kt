@@ -40,6 +40,7 @@ interface GameViewModel {
     val highscore: StateFlow<Int>
     val nBack: Int
 
+    fun updateHighScoreIfNeeded()
     fun setGameType(gameType: GameType)
     fun startGame()
     fun resetCurrentValue()
@@ -72,6 +73,16 @@ class GameVM(
 
     // nBack is currently hardcoded
     override val nBack: Int = 2
+    override fun updateHighScoreIfNeeded() {
+        if (_score.value > _highscore.value) {
+            _highscore.value = _score.value // Uppdatera högsta poängen i ViewModel
+
+            // Starta en coroutine för att spara högsta poängen permanent
+            viewModelScope.launch {
+                userPreferencesRepository.saveHighScore(_highscore.value)
+            }
+        }
+    }
 
     private var job: Job? = null  // coroutine job for the game event
     private val eventInterval: Long = 2000L  // 2000 ms (2s)
@@ -170,6 +181,11 @@ class FakeVM: GameViewModel{
         get() = MutableStateFlow(42).asStateFlow()
     override val nBack: Int
         get() = 2
+
+    override fun updateHighScoreIfNeeded() {
+        TODO("Not yet implemented")
+    }
+
     override fun setGameType(gameType: GameType) {
     }
 
