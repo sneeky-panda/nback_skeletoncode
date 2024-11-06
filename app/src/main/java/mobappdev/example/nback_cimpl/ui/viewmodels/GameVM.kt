@@ -42,7 +42,7 @@ interface GameViewModel {
 
     fun setGameType(gameType: GameType)
     fun startGame()
-
+    fun resetCurrentValue()
     fun checkMatch()
     fun processUserAction(position: Int): Boolean
 }
@@ -99,6 +99,10 @@ class GameVM(
             }
             // Todo: update the highscore
         }
+    }
+
+    override fun resetCurrentValue() {
+        _score.value = 0
     }
 
     override fun checkMatch() {
@@ -170,6 +174,10 @@ class FakeVM: GameViewModel{
     }
 
     override fun startGame() {
+    }
+
+    override fun resetCurrentValue() {
+        TODO("Not yet implemented")
     }
 
     override fun checkMatch() {

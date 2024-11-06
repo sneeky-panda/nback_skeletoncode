@@ -89,9 +89,7 @@ fun HomeScreen(
                             textAlign = TextAlign.Center
                         )
                     }
-                    Button(onClick = {nav.invoke()}) {
-                        Text(text = "Start Game")
-                    }
+
                 }
             }
             Text(
@@ -107,6 +105,8 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {
+                    nav.invoke()
+                    vm.resetCurrentValue()
                     // Todo: change this button behaviour
                     scope.launch {
                         snackBarHostState.showSnackbar(
@@ -124,6 +124,8 @@ fun HomeScreen(
                 }
                 Button(
                     onClick = {
+                        nav.invoke()
+                        vm.resetCurrentValue()
                         // Todo: change this button behaviour
                         scope.launch {
                             snackBarHostState.showSnackbar(
