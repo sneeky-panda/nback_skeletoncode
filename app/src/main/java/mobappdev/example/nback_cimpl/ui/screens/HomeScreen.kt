@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.R
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 /**
@@ -49,7 +50,7 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 @Composable
 fun HomeScreen(
-    vm: GameViewModel,nav:()->Unit
+    vm: GameViewModel,nav:(String)->Unit
 ) {
 
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
@@ -82,7 +83,7 @@ fun HomeScreen(
                     Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    if (gameState.eventValue != -1) {
+                   /* if (gameState.eventValue != -1) {
                         Text(
                             modifier = Modifier.fillMaxWidth(),
                             text = "Current eventValue is: ${gameState.eventValue}",
@@ -91,7 +92,7 @@ fun HomeScreen(
                     }
                     Button(onClick = {nav.invoke()}) {
                         Text(text = "Start Game")
-                    }
+                    }*/
                 }
             }
             Text(
@@ -107,38 +108,37 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {
-                    // Todo: change this button behaviour
-                    scope.launch {
-                        snackBarHostState.showSnackbar(
-                            message = "Hey! you clicked the audio button"
-                        )
-                    }
-                }) {
+                    vm.setGameType(GameType.Visual)
+                    nav("game")
+                    vm.resetScore()
+                },
+                    modifier = Modifier.padding(8.dp)
+                    ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.sound_on),
-                        contentDescription = "Sound",
+                        painter = painterResource(id = R.drawable.visual),
+                        contentDescription = "Start Visual Game",
                         modifier = Modifier
                             .height(48.dp)
-                            .aspectRatio(3f / 2f)
+                            .aspectRatio(3f / 3f)
                     )
+                    Text(text = "Visual", modifier = Modifier.padding(start = 8.dp))
+
                 }
                 Button(
                     onClick = {
-                        // Todo: change this button behaviour
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = "Hey! you clicked the visual button",
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }) {
+                        vm.setGameType(GameType.Audio)
+                        nav("game")
+                    },
+                    modifier = Modifier.padding(8.dp)
+                ){
                     Icon(
-                        painter = painterResource(id = R.drawable.visual),
-                        contentDescription = "Visual",
+                        painter = painterResource(id = R.drawable.sound_on),
+                        contentDescription = "Start Audio Game",
                         modifier = Modifier
                             .height(48.dp)
                             .aspectRatio(3f / 2f)
                     )
+                    Text(text = "Audio", modifier = Modifier.padding(start = 8.dp))
                 }
             }
         }

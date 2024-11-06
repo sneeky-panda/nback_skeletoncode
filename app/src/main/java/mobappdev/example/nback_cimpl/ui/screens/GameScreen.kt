@@ -22,6 +22,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -44,6 +45,11 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
     val currentScore by vm.score.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+
+    LaunchedEffect(Unit) {
+        vm.startGame()
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) }
@@ -70,34 +76,30 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
             )
 
             //3x3
-            Column( verticalArrangement = Arrangement.spacedBy(8.dp),
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(16.dp)
-            ){
-                for(i in 0 until 3){
+            ) {
+                for (i in 0 until 3) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ){
-                        for(j in 0 until 3){
-                            val position = i *3+ j
+                    ) {
+                        for (j in 0 until 3) {
+                            val position = i * 3 + j + 1
                             Box(
                                 modifier = Modifier
                                     .size(80.dp)
                                     .border(2.dp, Color.Black)
                                     .background(
-                                        if(gameState.eventValue ==position) Color.Green else Color.Transparent
-                                    ).clickable {
-                                        scope.launch {
-                                            val isCorret = vm.processUserAction(position)
-                                            snackBarHostState.showSnackbar(
-                                                if(isCorret) "Correct!" else "incorrect!"
-                                            )
-                                        }
-                                    }, contentAlignment = Alignment.Center
-                            ){ Text(
-                                text = position.toString(),
-                                style = MaterialTheme.typography.bodyLarge
-                            ) }
+                                        if (gameState.eventValue == position) Color.Green else Color.Transparent
+                                    ), contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = position.toString(),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
 
                         }
                     }
@@ -107,7 +109,10 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
 
             // Knapp för att navigera tillbaka till HomeScreen
             Button(
-                onClick = nav,
+
+                onClick = {
+                    nav()
+                },
                 modifier = Modifier.padding(top = 32.dp)
             ) {
                 Text(text = "Back to Home")
@@ -122,49 +127,14 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
             Button(onClick = vm::startGame) {
                 Text(text = "Generate eventValues")
             }
-
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
+            Button(
+                onClick = {
+                    // Använd checkMatch-metoden för att kontrollera matchning och uppdatera poäng
+                    vm.checkMatch()
+                },
+                modifier = Modifier.padding(top = 16.dp)
             ) {
-                Button(onClick = {
-                    // Todo: change this button behaviour
-                    scope.launch {
-                        snackBarHostState.showSnackbar(
-                            message = "Hey! you clicked the audio button"
-                        )
-                    }
-                }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.sound_on),
-                        contentDescription = "Sound",
-                        modifier = Modifier
-                            .height(48.dp)
-                            .aspectRatio(3f / 2f)
-                    )
-                }
-                Button(
-                    onClick = {
-                        // Todo: change this button behaviour
-                        scope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = "Hey! you clicked the visual button",
-                                duration = SnackbarDuration.Short
-                            )
-                        }
-                    }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.visual),
-                        contentDescription = "Visual",
-                        modifier = Modifier
-                            .height(48.dp)
-                            .aspectRatio(3f / 2f)
-                    )
-                }
+                Text(text = "Check Match")
             }
         }
     }
