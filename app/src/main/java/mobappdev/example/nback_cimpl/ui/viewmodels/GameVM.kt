@@ -128,12 +128,12 @@ class GameVM(
 
     override fun checkMatch() {
 
-        val c = events.get(currentEventIndex)
+        val c = events[currentEventIndex]
         Log.d("GameVM", "${c.toString()}")
         // Kontrollera om det finns tillräckligt många tidigare event för att jämföra
-        if (c + 1 >= nBack) {
-            val currentEventValue = events[c]
-            val nBackEvent = events[c - nBack]
+        if (currentEventIndex  >= nBack) {
+            val currentEventValue = events[currentEventIndex]
+            val nBackEvent = events[currentEventIndex - nBack]
             Log.d(
                 "GameVM",
                 "current  ${currentEventValue.toString()} och nBack ${nBackEvent.toString()}"
