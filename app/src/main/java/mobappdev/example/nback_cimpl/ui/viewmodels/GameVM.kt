@@ -52,7 +52,6 @@ class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : GameViewModel, ViewModel() {
 
-    //private var guess: Guess = Guess.NONE
     private var currentEventIndex = -1
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
@@ -106,8 +105,10 @@ class GameVM(
         currentEventIndex = -1
         //guess= Guess.NONE
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
+
         events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList()
-            .toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
+                .toTypedArray()
+       // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
         Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
 
         job = viewModelScope.launch {
@@ -123,19 +124,14 @@ class GameVM(
     override fun resetCurrentValue() {
         _score.value = 0
     }
-/*
-    enum class Guess {
-        ACTIVE,
-        NONE
-    }
-*/
-    override fun checkMatch() {
 
+
+    override fun checkMatch() {
 
         val c = events.get(currentEventIndex)
         Log.d("GameVM", "${c.toString()}")
         // Kontrollera om det finns tillräckligt många tidigare event för att jämföra
-        if (c >= nBack) {
+        if (c + 1 >= nBack) {
             val currentEventValue = events[c]
             val nBackEvent = events[c - nBack]
             Log.d(

@@ -110,7 +110,7 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {
-                    nav.invoke()
+                    vm.setGameType()
                     vm.resetCurrentValue()
                     // Todo: change this button behaviour
                     scope.launch {
