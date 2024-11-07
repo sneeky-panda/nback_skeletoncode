@@ -51,6 +51,7 @@ interface GameViewModel {
 class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository
 ): GameViewModel, ViewModel() {
+    private var currentEventIndex = -1
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
         get() = _gameState.asStateFlow()
@@ -97,7 +98,9 @@ class GameVM(
     }
 
     override fun startGame() {
+
         job?.cancel()  // Cancel any existing game loop
+        currentEventIndex=-1
 
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
         events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
@@ -123,19 +126,21 @@ class GameVM(
         return events[currentIndex - nBack]
     }*/
     override fun checkMatch() {
-        val currentEventValue = _gameState.value.eventValue
+        //val currentEventValue = _gameState.value.eventValue
        // val previousValue = _gameState.value.previousValue
-        val currentIndex = events.indexOf(currentEventValue)
+        val currentIndex = events.indexOf(currentEventIndex)
+
 
         // Kontrollera om det finns tillräckligt många tidigare event för att jämföra
         if (currentIndex >= nBack) {
+            val currentEventValue = events[currentEventIndex]
             val nBackEvent = events[currentIndex - nBack]
 
             // Kontrollera om det aktuella värdet matchar n-back-värdet
             if (currentEventValue == nBackEvent) {
                 // Om matchning, öka poängen
                 _score.value += 1
-                Log.d("GameVM", "Correct match! Score is now: ${_score.value}")
+                Log.d("GameVM", "Correct match! Score is now: ${_score.value}"+"Detta lyckad test: ${currentEventValue} och ${nBackEvent}")
 
                 // Uppdatera och spara högsta poängen om det behövs
                 if (_score.value > _highscore.value) {
@@ -146,7 +151,8 @@ class GameVM(
                     }
                 }
             } else {
-                Log.d("GameVM", "No match. Score remains: ${_score.value}")
+                Log.d("GameVM", "No match. Score remains: ${_score.value}"+"Detta är test: ${currentEventValue} och ${nBackEvent}")
+
             }
         } else {
             Log.d("GameVM", "Not enough events to check n-back match.")
@@ -163,6 +169,7 @@ class GameVM(
     private suspend fun runVisualGame(events: Array<Int>){
         // Todo: Replace this code for actual game code
         for (value in events) {
+            currentEventIndex++
             _gameState.value = _gameState.value.copy(eventValue = value)
             delay(eventInterval)
         }
