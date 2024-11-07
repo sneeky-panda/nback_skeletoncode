@@ -113,7 +113,7 @@ class GameVM(
 
         job = viewModelScope.launch {
             when (gameState.value.gameType) {
-                GameType.Audio -> runAudioGame()
+                GameType.Audio -> runAudioGame(events)
                 GameType.AudioVisual -> runAudioVisualGame()
                 GameType.Visual -> runVisualGame(events)
             }
@@ -167,6 +167,7 @@ class GameVM(
 
     private fun runAudioGame() {
         // Todo: Make work for Basic grade
+
     }
 
     private suspend fun runVisualGame(events: Array<Int>) {
