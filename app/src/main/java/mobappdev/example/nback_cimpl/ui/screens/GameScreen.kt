@@ -1,5 +1,7 @@
 package mobappdev.example.nback_cimpl.ui.screens
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +38,7 @@ import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.R
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
 
@@ -68,6 +71,10 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(16.dp)
             )
+            Text(
+                text = "${vm.gameState.value.toString()} Där ser man "
+
+            )
 
             //3x3
             Column( verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -79,7 +86,7 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ){
                         for(j in 0 until 3){
-                            val position = i *3+ j
+                            val position = i *3+ j+1
                             Box(
                                 modifier = Modifier
                                     .size(80.dp)
@@ -96,8 +103,11 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
                                     }, contentAlignment = Alignment.Center
                             ){ Text(
                                 text = position.toString(),
-                                style = MaterialTheme.typography.bodyLarge
-                            ) }
+                                style = MaterialTheme.typography.bodyLarge,
+
+                            )
+                            }
+
 
                         }
                     }
@@ -125,6 +135,12 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
 
                 Text(text = "Generate eventValues")
             }
+            Button(onClick = {
+                vm.checkMatch() // Kontrollera om poäng ska ges
+            }) {
+                Text("Check Match")
+            }
+
 
 
             Row(

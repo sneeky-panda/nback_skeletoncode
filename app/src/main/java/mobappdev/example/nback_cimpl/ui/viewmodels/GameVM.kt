@@ -63,6 +63,7 @@ class GameVM(
         return isCorrect
     }
 
+
     private val _score = MutableStateFlow(0)
     override val score: StateFlow<Int>
         get() = _score
@@ -115,8 +116,41 @@ class GameVM(
     override fun resetCurrentValue() {
         _score.value = 0
     }
-
+/*
+    fun returnEvents():Int{
+        val currentEventValue = _gameState.value.eventValue
+        val currentIndex = events.indexOf(currentEventValue)
+        return events[currentIndex - nBack]
+    }*/
     override fun checkMatch() {
+        val currentEventValue = _gameState.value.eventValue
+       // val previousValue = _gameState.value.previousValue
+        val currentIndex = events.indexOf(currentEventValue)
+
+        // Kontrollera om det finns tillräckligt många tidigare event för att jämföra
+        if (currentIndex >= nBack) {
+            val nBackEvent = events[currentIndex - nBack]
+
+            // Kontrollera om det aktuella värdet matchar n-back-värdet
+            if (currentEventValue == nBackEvent) {
+                // Om matchning, öka poängen
+                _score.value += 1
+                Log.d("GameVM", "Correct match! Score is now: ${_score.value}")
+
+                // Uppdatera och spara högsta poängen om det behövs
+                if (_score.value > _highscore.value) {
+                    _highscore.value = _score.value
+                    viewModelScope.launch {
+                        userPreferencesRepository.saveHighScore(_highscore.value)
+                        Log.d("GameVM", "New high score saved: ${_highscore.value}")
+                    }
+                }
+            } else {
+                Log.d("GameVM", "No match. Score remains: ${_score.value}")
+            }
+        } else {
+            Log.d("GameVM", "Not enough events to check n-back match.")
+        }
         /**
          * Todo: This function should check if there is a match when the user presses a match button
          * Make sure the user can only register a match once for each event.
