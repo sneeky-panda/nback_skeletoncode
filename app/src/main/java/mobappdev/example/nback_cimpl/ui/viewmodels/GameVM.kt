@@ -200,6 +200,7 @@ class GameVM(
     }
     private suspend fun runAudioGame(events: Array<Int>) {
         for (value in events) {
+            _gameState.value.isGuessed=false
             currentEventIndex++
             _gameState.value = _gameState.value.copy(eventValue = value,currentEventNumber = currentEventIndex + 1 )
             playAudioStimulus(value)  // Spela upp ljud för varje event
@@ -212,6 +213,7 @@ class GameVM(
     private suspend fun runVisualGame(events: Array<Int>) {
         // Todo: Replace this code for actual game code
         for (value in events) {
+            _gameState.value.isGuessed=false
             currentEventIndex++
             _gameState.value = _gameState.value.copy(eventValue = value,currentEventNumber = currentEventIndex + 1 )
             delay(eventInterval)
