@@ -114,7 +114,7 @@ class GameVM(
         job = viewModelScope.launch {
             when (gameState.value.gameType) {
                 GameType.Audio -> runAudioGame(events)
-                GameType.AudioVisual -> runAudioVisualGame()
+               // GameType.AudioVisual -> runAudioVisualGame()
                 GameType.Visual -> runVisualGame(events)
             }
             // Todo: update the highscore
@@ -165,9 +165,13 @@ class GameVM(
          */
     }
 
-    private fun runAudioGame() {
+    private suspend fun runAudioGame(events: Array<Int>) {
+        for (value in events) {
+            currentEventIndex++
+            _gameState.value = _gameState.value.copy(eventValue = value)
+            delay(eventInterval)
+        }
         // Todo: Make work for Basic grade
-
     }
 
     private suspend fun runVisualGame(events: Array<Int>) {
@@ -207,8 +211,8 @@ class GameVM(
 // Class with the different game types
 enum class GameType {
     Audio,
-    Visual,
-    AudioVisual
+    Visual/*,
+    AudioVisual*/
 }
 
 data class GameState(

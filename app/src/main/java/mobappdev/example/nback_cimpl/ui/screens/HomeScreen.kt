@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.R
 import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 /**
@@ -110,6 +111,7 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {
+                    vm.setGameType(GameType.Audio)
                     nav.invoke()
                     vm.resetCurrentValue()
                     // Todo: change this button behaviour
@@ -129,6 +131,7 @@ fun HomeScreen(
                 }
                 Button(
                     onClick = {
+                        vm.setGameType(GameType.Visual)
                         nav.invoke()
                         vm.resetCurrentValue()
                         // Todo: change this button behaviour

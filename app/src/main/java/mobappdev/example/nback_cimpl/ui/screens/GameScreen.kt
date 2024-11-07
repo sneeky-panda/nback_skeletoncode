@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.R
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
@@ -75,44 +76,49 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
                 text = "${vm.gameState.value.toString()} Där ser man "
 
             )
+            when(gameState.gameType){
+                GameType.Audio->{
 
-            //3x3
-            Column( verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(16.dp)
-            ){
-                for(i in 0 until 3){
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ){
-                        for(j in 0 until 3){
-                            val position = i *3+ j+1
-                            Box(
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .border(2.dp, Color.Black)
-                                    .background(
-                                        if(gameState.eventValue ==position) Color.Green else Color.Transparent
-                                    ).clickable {
-                                        scope.launch {
-                                            val isCorret = vm.processUserAction(position)
-                                            snackBarHostState.showSnackbar(
-                                                if(isCorret) "Correct!" else "incorrect!"
-                                            )
-                                        }
-                                    }, contentAlignment = Alignment.Center
-                            ){ Text(
-                                text = position.toString(),
-                                style = MaterialTheme.typography.bodyLarge,
+                }
+                GameType.Visual->{  Column( verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(16.dp)
+                ){
+                    for(i in 0 until 3){
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ){
+                            for(j in 0 until 3){
+                                val position = i *3+ j+1
+                                Box(
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .border(2.dp, Color.Black)
+                                        .background(
+                                            if(gameState.eventValue ==position) Color.Green else Color.Transparent
+                                        ).clickable {
+                                            scope.launch {
+                                                val isCorret = vm.processUserAction(position)
+                                                snackBarHostState.showSnackbar(
+                                                    if(isCorret) "Correct!" else "incorrect!"
+                                                )
+                                            }
+                                        }, contentAlignment = Alignment.Center
+                                ){ Text(
+                                    text = position.toString(),
+                                    style = MaterialTheme.typography.bodyLarge,
 
-                            )
+                                    )
+                                }
+
+
                             }
-
-
                         }
                     }
-                }
+                }}
             }
+            //3x3
+
 
 
             // Knapp för att navigera tillbaka till HomeScreen
