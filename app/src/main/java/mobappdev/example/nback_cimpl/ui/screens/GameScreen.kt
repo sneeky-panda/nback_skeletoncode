@@ -44,6 +44,7 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
 
     // Observera spelstatus och poäng från ViewModel
+    vm.initializeTextToSpeech()
     val gameState by vm.gameState.collectAsState()
     val currentScore by vm.score.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -73,7 +74,7 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
                 modifier = Modifier.padding(16.dp)
             )
             Text(
-                text = "${vm.gameState.value.toString()} Där ser man "
+                text = "Number ${vm.gameState.value.currentEventNumber} of 10"
 
             )
             when(gameState.gameType){
@@ -121,33 +122,25 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
                     }
                 }}
             }
-            //3x3
 
 
 
             // Knapp för att navigera tillbaka till HomeScreen
             Button(
                 onClick = {nav()
-
+                    vm.onCleared()
                           },
                 modifier = Modifier.padding(top = 32.dp)
             ) {
                 Text(text = "Back to Home")
             }
-            if (gameState.eventValue != -1) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Current eventValue is: ${gameState.eventValue}",
-                    textAlign = TextAlign.Center
-                )
-            }
-            Button(onClick = {vm::startGame
+            /*Button(onClick = {vm::startGame
                 vm.startGame()
 
             }) {
 
                 Text(text = "Generate eventValues")
-            }
+            }*/
             Button(onClick = {
                 vm.checkMatch() // Kontrollera om poäng ska ges
             }) {

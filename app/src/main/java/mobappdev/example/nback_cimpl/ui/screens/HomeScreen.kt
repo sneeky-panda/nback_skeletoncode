@@ -50,12 +50,12 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 
 @Composable
 fun HomeScreen(
-    vm: GameViewModel,nav:()->Unit
+    vm: GameViewModel, nav: () -> Unit
 ) {
 
     val highscore by vm.highscore.collectAsState()  // Highscore is its own StateFlow
     val gameState by vm.gameState.collectAsState()
-   // val nrOfTurns by vm.nrOfTurns.collectAsState()
+    // val nrOfTurns by vm.nrOfTurns.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -74,6 +74,21 @@ fun HomeScreen(
                 text = "High-Score = $highscore",
                 style = MaterialTheme.typography.headlineLarge
             )
+            Text(
+                modifier = Modifier.padding(32.dp),
+                text = "n=2",
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Text(
+                modifier = Modifier.padding(32.dp),
+                text = "2 sec between values",
+                style = MaterialTheme.typography.headlineLarge
+            )
+            Text(
+                modifier = Modifier.padding(32.dp),
+                text = "totall 10 values",
+                style = MaterialTheme.typography.headlineLarge
+            )
             // Todo: You'll probably want to change this "BOX" part of the composable
             Box(
                 modifier = Modifier.weight(1f),
@@ -90,11 +105,11 @@ fun HomeScreen(
                             textAlign = TextAlign.Center
                         )*/
                     }
-                    Button(onClick = { vm.updateHighScoreIfNeeded()}){
-                        Text(
-                            text = "Resete H-S test"
-                        )
-                    }
+                    /* Button(onClick = { vm.updateHighScoreIfNeeded()}){
+                         Text(
+                             text = "Resete H-S test"
+                         )
+                     }*/
 
                 }
             }
@@ -111,9 +126,11 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {
+                    vm.initializeTextToSpeech()
                     vm.setGameType(GameType.Audio)
                     nav.invoke()
                     vm.resetCurrentValue()
+                    vm.startGame()
                     // Todo: change this button behaviour
                     scope.launch {
                         snackBarHostState.showSnackbar(
@@ -134,6 +151,7 @@ fun HomeScreen(
                         vm.setGameType(GameType.Visual)
                         nav.invoke()
                         vm.resetCurrentValue()
+                        vm.startGame()
                         // Todo: change this button behaviour
                         scope.launch {
                             snackBarHostState.showSnackbar(
@@ -160,7 +178,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenPreview() {
     // Since I am injecting a VM into my homescreen that depends on Application context, the preview doesn't work.
-    Surface(){
-        HomeScreen(FakeVM(), nav = {"home"})
+    Surface() {
+        HomeScreen(FakeVM(), nav = { "home" })
     }
 }

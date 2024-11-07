@@ -54,6 +54,7 @@ interface GameViewModel {
     fun onInit(status: Int)
     fun speak(text: String)
     fun onCleared()
+    fun initializeTextToSpeech()
 }
 
 class GameVM(
@@ -61,6 +62,8 @@ class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : GameViewModel, AndroidViewModel(application), TextToSpeech.OnInitListener {
 
+    var currentEventNumber: Int = 0 // Eventets ordningsnummer i rundan
+    var correctResponses: Int = 0
     private lateinit var textToSpeech: TextToSpeech
     private var currentEventIndex = -1
     private val _gameState = MutableStateFlow(GameState())
@@ -139,15 +142,17 @@ class GameVM(
 
     override fun checkMatch() {
 
-        val c = events[currentEventIndex]
-        Log.d("GameVM", "${c.toString()}")
+       // val c = events[currentEventIndex]
+       // Log.d("GameVM", "${c.toString()}")
         // Kontrollera om det finns tillräckligt många tidigare event för att jämföra
         if (currentEventIndex  >= nBack) {
+
             val currentEventValue = events[currentEventIndex]
             val nBackEvent = events[currentEventIndex - nBack]
             // Kontrollera om det aktuella värdet matchar n-back-värdet
-            if (currentEventValue == nBackEvent) {
+            if (currentEventValue == nBackEvent && _gameState.value.isGuessed==false) {
                 // Om matchning, öka poängen
+                _gameState.value.isGuessed = true
                 _score.value += 1
                 // Uppdatera och spara högsta poängen om det behövs
                 if (_score.value > _highscore.value) {
@@ -196,9 +201,10 @@ class GameVM(
     private suspend fun runAudioGame(events: Array<Int>) {
         for (value in events) {
             currentEventIndex++
-            _gameState.value = _gameState.value.copy(eventValue = value)
+            _gameState.value = _gameState.value.copy(eventValue = value,currentEventNumber = currentEventIndex + 1 )
             playAudioStimulus(value)  // Spela upp ljud för varje event
             delay(eventInterval)  // Vänta en stund innan nästa event spelas upp
+            // Öka eventnumret
         }
         // Todo: Make work for Basic grade
     }
@@ -207,7 +213,7 @@ class GameVM(
         // Todo: Replace this code for actual game code
         for (value in events) {
             currentEventIndex++
-            _gameState.value = _gameState.value.copy(eventValue = value)
+            _gameState.value = _gameState.value.copy(eventValue = value,currentEventNumber = currentEventIndex + 1 )
             delay(eventInterval)
         }
 
@@ -256,6 +262,11 @@ class GameVM(
             Log.e("GameVM", "Text-to-Speech initialization failed")
         }
     }
+    override fun initializeTextToSpeech() {
+        if (!::textToSpeech.isInitialized || textToSpeech == null) {
+            textToSpeech = TextToSpeech(getApplication(), this)
+        }
+    }
 
     override fun speak(text: String) {
         textToSpeech?.let {
@@ -287,7 +298,10 @@ enum class GameType {
 data class GameState(
     // You can use this state to push values from the VM to your UI.
     val gameType: GameType = GameType.Visual,  // Type of the game
-    val eventValue: Int = -1  // The value of the array string
+    val eventValue: Int = -1,  // The value of the array string
+    val currentEventNumber: Int = 0,         // Aktuellt eventnummer
+    val correctResponses: Int = 0,
+    var isGuessed: Boolean = false
 )
 
 class FakeVM : GameViewModel {
@@ -334,6 +348,10 @@ class FakeVM : GameViewModel {
     }
 
     override fun onCleared() {
+        TODO("Not yet implemented")
+    }
+
+    override fun initializeTextToSpeech() {
         TODO("Not yet implemented")
     }
 }
