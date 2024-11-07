@@ -150,7 +150,7 @@ class GameVM(
             val currentEventValue = events[currentEventIndex]
             val nBackEvent = events[currentEventIndex - nBack]
             // Kontrollera om det aktuella värdet matchar n-back-värdet
-            if (currentEventValue == nBackEvent && _gameState.value.isGuessed==false) {
+            if (currentEventValue == nBackEvent && !_gameState.value.isGuessed) {
                 // Om matchning, öka poängen
                 _gameState.value.isGuessed = true
                 _score.value += 1
@@ -164,11 +164,12 @@ class GameVM(
                 }
             } else {
                 Log.d("GameVM", "No match")
+                _gameState.value = _gameState.value.copy(correctGuess = false)
 
             }
         } else {
             Log.d("GameVM", "Not enough events to check n-back match.")
-
+            _gameState.value = _gameState.value.copy(correctGuess = false)
         }
         /**
          * Todo: This function should check if there is a match when the user presses a match button
@@ -200,6 +201,7 @@ class GameVM(
     }
     private suspend fun runAudioGame(events: Array<Int>) {
         for (value in events) {
+            _gameState.value.correctGuess = true
             _gameState.value.isGuessed=false
             currentEventIndex++
             _gameState.value = _gameState.value.copy(eventValue = value,currentEventNumber = currentEventIndex + 1 )
@@ -213,6 +215,7 @@ class GameVM(
     private suspend fun runVisualGame(events: Array<Int>) {
         // Todo: Replace this code for actual game code
         for (value in events) {
+            _gameState.value.correctGuess = true
             _gameState.value.isGuessed=false
             currentEventIndex++
             _gameState.value = _gameState.value.copy(eventValue = value,currentEventNumber = currentEventIndex + 1 )
@@ -303,7 +306,8 @@ data class GameState(
     val eventValue: Int = -1,  // The value of the array string
     val currentEventNumber: Int = 0,         // Aktuellt eventnummer
     val correctResponses: Int = 0,
-    var isGuessed: Boolean = false
+    var isGuessed: Boolean = false,
+    var correctGuess: Boolean= true
 )
 
 class FakeVM : GameViewModel {

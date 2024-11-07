@@ -102,12 +102,12 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
                                         .background(
                                             if(gameState.eventValue ==position) Color.Green else Color.Transparent
                                         ).clickable {
-                                            scope.launch {
+                                            scope.launch {/*
                                                 val isCorret = vm.processUserAction(position)
                                                 snackBarHostState.showSnackbar(
                                                     if(isCorret) "Correct!" else "incorrect!"
                                                 )
-                                            }
+                                           */ }
                                         }, contentAlignment = Alignment.Center
                                 ){ Text(
                                     text = position.toString(),
@@ -145,6 +145,12 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
                 vm.checkMatch() // Kontrollera om poäng ska ges
             }) {
                 Text("Check Match")
+            }
+            if(!gameState.correctGuess){
+                Text(text = "Wrong Guess!!!!!!",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(8.dp))
             }
 
 
