@@ -77,9 +77,13 @@ fun GameScreen(vm: GameViewModel, nav: () -> Unit) {
 
             )
             when(gameState.gameType){
-                GameType.Audio->{
-
-                }
+                GameType.Audio -> {
+                Text(
+                    text = "Playing audio for event: ${vm.intToLetter(gameState.eventValue)}",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
                 GameType.Visual->{  Column( verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(16.dp)

@@ -1,6 +1,9 @@
 package mobappdev.example.nback_cimpl.ui.viewmodels
 
+import android.app.Application
+import android.speech.tts.TextToSpeech
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -16,6 +19,7 @@ import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.GameApplication
 import mobappdev.example.nback_cimpl.NBackHelper
 import mobappdev.example.nback_cimpl.data.UserPreferencesRepository
+import java.util.Locale
 
 /**
  * This is the GameViewModel.
@@ -40,18 +44,24 @@ interface GameViewModel {
     val highscore: StateFlow<Int>
     val nBack: Int
 
+    fun intToLetter(value: Int): String
     fun updateHighScoreIfNeeded()
     fun setGameType(gameType: GameType)
     fun startGame()
     fun resetCurrentValue()
     fun checkMatch()
     fun processUserAction(position: Int): Boolean
+    fun onInit(status: Int)
+    fun speak(text: String)
+    fun onCleared()
 }
 
 class GameVM(
+    application: Application,
     private val userPreferencesRepository: UserPreferencesRepository
-) : GameViewModel, ViewModel() {
+) : GameViewModel, AndroidViewModel(application), TextToSpeech.OnInitListener {
 
+    private lateinit var textToSpeech: TextToSpeech
     private var currentEventIndex = -1
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
@@ -76,6 +86,7 @@ class GameVM(
 
     // nBack is currently hardcoded
     override val nBack: Int = 2
+
 
     override fun updateHighScoreIfNeeded() {
         //if (_score.value > _highscore.value) {
@@ -134,10 +145,6 @@ class GameVM(
         if (currentEventIndex  >= nBack) {
             val currentEventValue = events[currentEventIndex]
             val nBackEvent = events[currentEventIndex - nBack]
-            Log.d(
-                "GameVM",
-                "current  ${currentEventValue.toString()} och nBack ${nBackEvent.toString()}"
-            )
             // Kontrollera om det aktuella värdet matchar n-back-värdet
             if (currentEventValue == nBackEvent) {
                 // Om matchning, öka poängen
@@ -151,25 +158,47 @@ class GameVM(
                     }
                 }
             } else {
-                Log.d("GameVM", "Detta är test: ${currentEventValue} och ${nBackEvent}")
                 Log.d("GameVM", "No match")
 
             }
         } else {
             Log.d("GameVM", "Not enough events to check n-back match.")
-            Log.d("GameVM", "Kollar av  ${c.toString()}")
+
         }
         /**
          * Todo: This function should check if there is a match when the user presses a match button
          * Make sure the user can only register a match once for each event.
          */
     }
+     private fun playAudioStimulus(value: Int) {
+         val letter = intToLetter(value)
+         Log.d("GameVM", "Playing audio for event: $letter")
+         speak(letter)  // Använd TTS för att läsa upp bokstaven
+        // Använd `letter` för att spela upp rätt ljudfil, t.ex. "A.mp3" för "A"
 
+     }
+
+
+    override fun intToLetter(value:Int): String{
+        return when(value){
+            1 -> "A"
+            2 -> "B"
+            3 -> "C"
+            4 -> "D"
+            5 -> "E"
+            6 -> "F"
+            7 -> "G"
+            8 -> "H"
+            9 -> "I"
+            else -> "?"  // Använd "?" om inget matchande värde hittas
+        }
+    }
     private suspend fun runAudioGame(events: Array<Int>) {
         for (value in events) {
             currentEventIndex++
             _gameState.value = _gameState.value.copy(eventValue = value)
-            delay(eventInterval)
+            playAudioStimulus(value)  // Spela upp ljud för varje event
+            delay(eventInterval)  // Vänta en stund innan nästa event spelas upp
         }
         // Todo: Make work for Basic grade
     }
@@ -191,13 +220,53 @@ class GameVM(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY] as GameApplication)
-                GameVM(application.userPreferencesRespository)
+                val application = this[APPLICATION_KEY] as Application
+                val userPreferencesRepository = (application as GameApplication).userPreferencesRespository
+                GameVM(application, userPreferencesRepository)
             }
         }
     }
-
     init {
+        // Code that runs during creation of the vm
+        textToSpeech = TextToSpeech(getApplication(), this)
+
+        viewModelScope.launch {
+            userPreferencesRepository.highscore.collect {
+                _highscore.value = it
+            }
+        }
+    }
+    override fun onCleared() {
+        super.onCleared()
+        textToSpeech?.shutdown() // Frigör TTS-resurser
+    }
+
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            // The TTS engine was initialized successfully
+            val langResult = textToSpeech?.setLanguage(Locale.ENGLISH)
+
+            if (langResult == TextToSpeech.LANG_MISSING_DATA || langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("GameVM", "Language is not supported or missing data")
+            } else {
+                Log.d("GameVM", "Text-to-Speech Initialized successfully")
+            }
+        } else {
+            Log.e("GameVM", "Text-to-Speech initialization failed")
+        }
+    }
+
+    override fun speak(text: String) {
+        textToSpeech?.let {
+            if (it.isSpeaking) {
+                it.stop() // Stop speaking if something is already being spoken
+            }
+            it.speak(text, TextToSpeech.QUEUE_FLUSH, null, null) // Speak the event
+        }
+    }
+
+  /*  init {
         // Code that runs during creation of the vm
         viewModelScope.launch {
             userPreferencesRepository.highscore.collect {
@@ -205,7 +274,7 @@ class GameVM(
             }
         }
     }
-
+*/
 }
 
 // Class with the different game types
@@ -231,6 +300,10 @@ class FakeVM : GameViewModel {
     override val nBack: Int
         get() = 2
 
+    override fun intToLetter(value: Int): String {
+        TODO("Not yet implemented")
+    }
+
     override fun updateHighScoreIfNeeded() {
         TODO("Not yet implemented")
     }
@@ -249,6 +322,18 @@ class FakeVM : GameViewModel {
     }
 
     override fun processUserAction(position: Int): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun onInit(status: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun speak(text: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onCleared() {
         TODO("Not yet implemented")
     }
 }
