@@ -89,6 +89,11 @@ fun HomeScreen(
                             textAlign = TextAlign.Center
                         )*/
                     }
+                    Button(onClick = { vm.updateHighScoreIfNeeded()}){
+                        Text(
+                            text = "Resete H-S test"
+                        )
+                    }
 
                 }
             }

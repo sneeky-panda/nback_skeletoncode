@@ -75,14 +75,15 @@ class GameVM(
 
     // nBack is currently hardcoded
     override val nBack: Int = 2
+
     override fun updateHighScoreIfNeeded() {
-        if (_score.value > _highscore.value) {
-            _highscore.value = _score.value // Uppdatera högsta poängen i ViewModel
+        //if (_score.value > _highscore.value) {
+            _highscore.value = 0 // Uppdatera högsta poängen i ViewModel
 
             // Starta en coroutine för att spara högsta poängen permanent
             viewModelScope.launch {
                 userPreferencesRepository.saveHighScore(_highscore.value)
-            }
+
         }
     }
 
