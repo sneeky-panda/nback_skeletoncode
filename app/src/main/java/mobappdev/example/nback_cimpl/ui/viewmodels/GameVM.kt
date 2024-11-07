@@ -50,7 +50,9 @@ interface GameViewModel {
 
 class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository
-): GameViewModel, ViewModel() {
+) : GameViewModel, ViewModel() {
+
+    //private var guess: Guess = Guess.NONE
     private var currentEventIndex = -1
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState>
@@ -78,11 +80,11 @@ class GameVM(
 
     override fun updateHighScoreIfNeeded() {
         //if (_score.value > _highscore.value) {
-            _highscore.value = 0 // Uppdatera högsta poängen i ViewModel
+        _highscore.value = 0 // Uppdatera högsta poängen i ViewModel
 
-            // Starta en coroutine för att spara högsta poängen permanent
-            viewModelScope.launch {
-                userPreferencesRepository.saveHighScore(_highscore.value)
+        // Starta en coroutine för att spara högsta poängen permanent
+        viewModelScope.launch {
+            userPreferencesRepository.saveHighScore(_highscore.value)
 
         }
     }
@@ -101,10 +103,11 @@ class GameVM(
     override fun startGame() {
 
         job?.cancel()  // Cancel any existing game loop
-        currentEventIndex=-1
-
+        currentEventIndex = -1
+        //guess= Guess.NONE
         // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
-        events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
+        events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList()
+            .toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
         Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
 
         job = viewModelScope.launch {
@@ -121,28 +124,28 @@ class GameVM(
         _score.value = 0
     }
 /*
-    fun returnEvents():Int{
-        val currentEventValue = _gameState.value.eventValue
-        val currentIndex = events.indexOf(currentEventValue)
-        return events[currentIndex - nBack]
-    }*/
+    enum class Guess {
+        ACTIVE,
+        NONE
+    }
+*/
     override fun checkMatch() {
-        //val currentEventValue = _gameState.value.eventValue
-       // val previousValue = _gameState.value.previousValue
-        val currentIndex = events.indexOf(currentEventIndex)
 
 
+        val c = events.get(currentEventIndex)
+        Log.d("GameVM", "${c.toString()}")
         // Kontrollera om det finns tillräckligt många tidigare event för att jämföra
-        if (currentIndex >= nBack) {
-            val currentEventValue = events[currentEventIndex]
-            val nBackEvent = events[currentIndex - nBack]
-
+        if (c >= nBack) {
+            val currentEventValue = events[c]
+            val nBackEvent = events[c - nBack]
+            Log.d(
+                "GameVM",
+                "current  ${currentEventValue.toString()} och nBack ${nBackEvent.toString()}"
+            )
             // Kontrollera om det aktuella värdet matchar n-back-värdet
             if (currentEventValue == nBackEvent) {
                 // Om matchning, öka poängen
                 _score.value += 1
-                Log.d("GameVM", "Correct match! Score is now: ${_score.value}"+"Detta lyckad test: ${currentEventValue} och ${nBackEvent}")
-
                 // Uppdatera och spara högsta poängen om det behövs
                 if (_score.value > _highscore.value) {
                     _highscore.value = _score.value
@@ -152,22 +155,25 @@ class GameVM(
                     }
                 }
             } else {
-                Log.d("GameVM", "No match. Score remains: ${_score.value}"+"Detta är test: ${currentEventValue} och ${nBackEvent}")
+                Log.d("GameVM", "Detta är test: ${currentEventValue} och ${nBackEvent}")
+                Log.d("GameVM", "No match")
 
             }
         } else {
             Log.d("GameVM", "Not enough events to check n-back match.")
+            Log.d("GameVM", "Kollar av  ${c.toString()}")
         }
         /**
          * Todo: This function should check if there is a match when the user presses a match button
          * Make sure the user can only register a match once for each event.
          */
     }
+
     private fun runAudioGame() {
         // Todo: Make work for Basic grade
     }
 
-    private suspend fun runVisualGame(events: Array<Int>){
+    private suspend fun runVisualGame(events: Array<Int>) {
         // Todo: Replace this code for actual game code
         for (value in events) {
             currentEventIndex++
@@ -177,7 +183,7 @@ class GameVM(
 
     }
 
-    private fun runAudioVisualGame(){
+    private fun runAudioVisualGame() {
         // Todo: Make work for Higher grade
     }
 
@@ -202,7 +208,7 @@ class GameVM(
 }
 
 // Class with the different game types
-enum class GameType{
+enum class GameType {
     Audio,
     Visual,
     AudioVisual
@@ -214,7 +220,7 @@ data class GameState(
     val eventValue: Int = -1  // The value of the array string
 )
 
-class FakeVM: GameViewModel{
+class FakeVM : GameViewModel {
     override val gameState: StateFlow<GameState>
         get() = MutableStateFlow(GameState()).asStateFlow()
     override val score: StateFlow<Int>
